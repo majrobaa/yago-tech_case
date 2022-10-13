@@ -6,13 +6,22 @@ class navigate
     private $utils;
     private $csvlist;
     private $retdata;
+    private $userdata;
 
     public function __construct()
     {
+        $this->setInit();
+    }
+
+    function setInit()
+    {
         $this->utils = new utils();
-        $this->isadmin = $this->utils->s('isadmin');
+        $this->isadmin = $this->utils->ga($_GET, 'a') ? true : false;
         $this->csvlist = [];
-        $this->retData = [];
+        $this->retData = ['error' => []];
+        $this->userdata = [];
+        if ($this->utils->ga($_GET, 'u') !== $this->utils->s('uid')) $_SESSION['uid'] = $this->utils->ga($_GET, 'u');
+        $this->loadUserData($this->utils->s('uid'));
     }
 
     function render()
@@ -20,19 +29,45 @@ class navigate
         require_once "static/header.html";
 
         if ($this->isadmin) {
+            $this->loadCsvContent('files/NACEBEL_2008.csv')->getCsvCodes(5)->getRetData('csv');
+            if (count($_POST) > 0) {
+                $this->retData['error'] = $this->utils->validate($_POST, ['revenue', 'enumber', 'lname', 'codes']);
+                if (!isset($_POST['codes'])) $this->retData['error']['codes'] = 'Nacabel Codes not given';
+                if (substr($_POST['enumber'], 0, 1) != 0 || strlen($_POST['enumber']) !== 10) $this->retData['error']['enumber'] = 'Wrong enumber format';
+                if (count($this->retData['error']) == 0) {
+                    $response = $this->utils->ga($this->utils->ga($this->loadApiResult()->getRetdata('call'), 'data'), 'grossPremiums');
+                    foreach ($response as $key => $cover) {
+                        $details = $this->utils->getCoverDetails($key);
+                        $details['price'] = $cover;
+                        $this->retData['covers'][] = $details;
+                    }
+                    $insert[$this->utils->s('uid')] = [
+                        'post' => $_POST,
+                        'covers' => $this->retData['covers']];
+
+                    $this->utils->write_contents('user/users.json', $insert);
+                }
+            }
+
             require_once "content/admin_page.php";
         } else {
-            // var_dump($_POST);
-            $this->loadCsvContent('files/NACEBEL_2008.csv')->getCsvCodes(5)->getRetData('csv');
+            foreach ($this->getUserData('covers') as $key => $cover) {
+                $this->retData['covers'][] = $cover;
+            }
+
+            foreach ($this->getUserData('post') as $key => $post) {
+                $this->retData['post'][] = $post;
+            }
+
             require_once "content/user_page.php";
         }
 
         require_once "static/footer.php";
     }
 
-    function getRetData($key)
+    function getRetData($key = '')
     {
-        return $this->retData[$key];
+        return $key === '' ? $this->retData : $this->retData[$key];
     }
 
     function getCsvCodes($level = 0)
@@ -78,7 +113,7 @@ class navigate
         $codes .= ']';
 
         $data = '{
-	                "annualRevenue": ' . $this->utils->ga($_POST, 'salary') . ',
+	                "annualRevenue": ' . $this->utils->ga($_POST, 'revenue') . ',
 	                "enterpriseNumber": "' . $this->utils->ga($_POST, 'enumber') . '",
 	                "legalName": "' . $this->utils->ga($_POST, 'lname') . '",
 	                "naturalPerson": ' . ($this->utils->ga($_POST, 'nperson') === 'on' ? 'true' : 'false') . ',
@@ -87,10 +122,25 @@ class navigate
 	                "coverageCeilingFormula": "' . $this->utils->ga($_POST, 'cformula') . '"
                   }';
 
-        echo $data;
-
         $this->retData['call'] = json_decode($this->utils->apiCall($headers, $data)->getRetData(), true);
-
         return $this;
     }
+
+    function loadUserData($uid)
+    {
+        $users = $this->utils->read_contents('user/users.json');
+        foreach ($users as $key => $value) {
+            if ($key == $uid) {
+                $this->userdata = $value;
+                break;
+            }
+        }
+        return $this;
+    }
+
+    function getUserData($key = '')
+    {
+        return $key == '' ? $this->userdata : (isset($this->userdata[$key]) ? $this->userdata[$key] : []);
+    }
+
 }

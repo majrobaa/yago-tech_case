@@ -64,7 +64,84 @@ class utils
 
         $this->retData = curl_exec($curl);
         curl_close($curl);
+        //var_dump($this->retData);
         return $this;
     }
 
+    function validate($array, $notempty = [])
+    {
+        $error = [];
+        foreach ($array as $key => $value) {
+            if (in_array($key, $notempty)) {
+                if (is_array($value)) {
+                    if (count($value) == 0) $error[$key . '_error'] = $key . ' Field cannot be empty';
+                } else {
+                    if ($value == '') $error[$key . '_error'] = $key . ' Field cannot be empty';
+                }
+            }
+        }
+        return $error;
+    }
+
+    function getCoverDetails($cover)
+    {
+        $details = [];
+        switch ($cover) {
+            case 'afterDelivery':
+                $details = [
+                    'name' => "After Delivery",
+                    'description' => "covers damage arising after delivery of or completion of work (ex: new machines 
+                    recently installed at the client's office start a fire).",
+                ];
+                break;
+            case 'publicLiability':
+                $details = [
+                    'name' => "Public Liability",
+                    'description' => "cover compensation claims for injury or damage (ex: you spill a cup of coffee over 
+                    a client’s computer equipment).",
+                ];
+                break;
+            case 'professionalIndemnity':
+                $details = [
+                    'name' => "Professional Indemnity",
+                    'description' => "cover compensation claims for a mistake that you make during your work 
+                    (ex: accidentally forwarded confidential client information to third parties).",
+                ];
+                break;
+            case 'entrustedObjects':
+                $details = [
+                    'name' => "Entrusted Objects",
+                    'description' => " objects that don't belong to you, and are entrusted to you. You are obviously liable 
+                    for any damage to these goods. (ex: you break the super expensive computer that was provided to you as an IT consultant).",
+                ];
+                break;
+            case 'legalExpenses':
+                $details = [
+                    'name' => "Legal Expenses",
+                    'description' => "Also known as legal insurance, is an insurance which facilitates access to law and 
+                    justice by providing legal advice and covering legal costs of a dispute. (ex: a client asks you for a 
+                    financial compensation for a mistake you made in your work and you consider it's absolutely not you 
+                    fault considering the context and you thus want to hire a lawyer to defend you).",
+                ];
+                break;
+        }
+        $details['key'] = $cover;
+        return $details;
+    }
+
+    function read_contents($filename)
+    {
+        if (is_file($filename)) {
+            $raw_content = file_get_contents($filename);
+            return json_decode($raw_content, true);
+        } else {
+            fopen($filename, 'w');
+            return [];
+        }
+    }
+
+    function write_contents($filename, $contents)
+    {
+        return file_put_contents($filename, json_encode($contents));
+    }
 }

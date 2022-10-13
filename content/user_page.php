@@ -1,53 +1,31 @@
-<?php
-$this->loadApiResult()->getRetdata('csv');
+Our settings for you:<br>
+<?php //var_dump($this->getUserData('post')); ?>
+Annual Revenue: <?= $this->utils->ga($this->getUserData('post'), 'revenue') ?><br>
+Enterprise Number: <?= $this->utils->ga($this->getUserData('post'), 'enumber') ?><br>
+Legal Name: <?= $this->utils->ga($this->getUserData('post'), 'lname') ?><br>
+Natural Person: <?= $this->utils->ga($this->getUserData('post'), 'nperson') === 'on' ? 'Yes' : 'No' ?><br>
+Deductible Formula (small recommended): <?= $this->utils->ga($this->getUserData('post'), 'dformula') ?><br>
+Coverage Ceiling Formula (large recommended): <?= $this->utils->ga($this->getUserData('post'), 'cformula') ?>
+<br>
+<br>
+*Deducitible Formila is not that important for medical activites (because probability is limited) and the smaller choice reduce the price
+<br>
+*Coverage Ceiling Formula will protect you for much higher amounts that the default one in case of dangerous consequences of your action (wrong medicine that kills the patient for ex).
+<br><br>
 
-?>
-<br><br><br>
-<form method="post">
-    <label for="salary">Annual Revenue</label>
-    <input type="number" name="salary" id="salary" value="<?= $this->utils->ga($_POST, 'salary') ?>">
+<form>
+    <?php foreach ($this->utils->ga($this->getRetData(), 'covers', [], true) as $cover) { ?>
+        <label for="<?= $this->utils->ga($cover, 'key') ?>"><?= $this->utils->ga($cover, 'name') . ' - ' . $this->utils->ga($cover, 'price') . '€ ' ?></label>
+        <?php if ($this->utils->ga($cover, 'key') === 'legalExpenses') { ?>
 
-    <label for="enumber">Enterprise Number</label>
-    <input type="text" name="enumber" id="enumber" value="<?= $this->utils->ga($_POST, 'enumber') ?>">
-
-    <label for="lname">Legal Name</label>
-    <input type="text" name="lname" id="lname" value="<?= $this->utils->ga($_POST, 'lname') ?>">
-
-    <label for="nperson">Natural Person</label>
-    <input type="checkbox" name="nperson"
-           id="nperson" <?= $this->utils->ga($_POST, 'nperson') === 'on' ? 'checked' : '' ?>>
-
-    <label for="dformula">Deductible Formula</label>
-    <select name="dformula" id="dformula">
-        <option value="small" <?= $this->utils->ga($_POST, 'dformula') === 'small' ? 'selected' : '' ?>>Small</option>
-        <option value="medium" <?= $this->utils->ga($_POST, 'dformula') === 'medium' || $this->utils->ga($_POST, 'dformula') === '' ? 'selected' : '' ?>>
-            Medium
-        </option>
-        <option value="large" <?= $this->utils->ga($_POST, 'dformula') === 'large' ? 'selected' : '' ?>>Large</option>
-    </select>
-    <label for="cformula">Coverage Ceiling Formula</label>
-    <select name="cformula" id="cformula">
-        <option value="small" <?= $this->utils->ga($_POST, 'cformula') === 'small' ? 'selected' : '' ?>>Small</option>
-        <option value="large" <?= $this->utils->ga($_POST, 'cformula') === 'large' ? 'selected' : '' ?>>Large</option>
-    </select>
-    <br>
-    <label for="code">Nacabel Codes</label>
-    <br>
-    <?php foreach ($this->getRetData('csv') as $row) {
-        if ($this->utils->ga($row, 'Code') !== '') { ?>
-            <div style="display: inline-block">
-                <input type="checkbox"
-                       name="codes[]"
-                       value="<?= $this->utils->ga($row, 'Code') ?>"
-                       id="<?= $this->utils->ga($row, 'Code') ?>"
-                    <?= in_array($this->utils->ga($row, 'Code'), $this->utils->ga($_POST, 'codes')) ? 'checked' : '' ?>
-                >
-                <label style="padding-right: 30px;"
-                       for="<?= $this->utils->ga($row, 'Code') ?>"><?= $this->utils->ga($row, 'Code') ?></label>
-            </div>
-        <?php }
-    } ?>
-    <br>
-    <br>
-    <input type="submit" value="Show result">
+            <input type="checkbox" name="<?= $this->utils->ga($cover, 'key') ?>"
+                   value="<?= $this->utils->ga($cover, 'price') ?>"
+                   id="<?= $this->utils->ga($cover, 'key') ?>">
+        <?php } ?>
+        <br>
+        <label for="<?= $this->utils->ga($cover, 'key') ?>">(<?= $this->utils->ga($cover, 'description') ?>)</label><br>
+        <br>
+    <?php } ?>
 </form>
+<br><br>
+<a href="?a=1&u=1">Go to admin panel</a>
