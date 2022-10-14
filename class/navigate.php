@@ -44,7 +44,9 @@ class navigate
                     }
                     $insert[$this->utils->s('uid')] = [
                         'post' => $_POST,
-                        'covers' => $this->retData['covers']];
+                        'covers' => $this->retData['covers'],
+                        'expenses' => $this->utils->ga($this->userdata, 'expenses'),
+                    ];
                     $this->utils->writeContents('user/users.json', $insert);
                     $this->userdata = $insert[$this->utils->s('uid')];
                 }
@@ -52,6 +54,7 @@ class navigate
 
             require_once "content/admin_page.php";
         } else {
+
             foreach ($this->getUserData('covers') as $key => $cover) {
                 $this->retData['covers'][] = $cover;
             }
@@ -59,6 +62,19 @@ class navigate
             foreach ($this->getUserData('post') as $key => $post) {
                 $this->retData['post'][] = $post;
             }
+
+
+            if (count($_POST) > 0) {
+                $this->userdata['expenses'] = !$this->utils->ga($_POST, 'setexpenses');
+                $insert[$this->utils->s('uid')] = [
+                    'post' => $this->userdata['post'],
+                    'covers' => $this->userdata['covers'],
+                    'expenses' => $this->userdata['expenses'],
+                ];
+                $this->utils->writeContents('user/users.json', $insert);
+            }
+
+            $this->retData['expenses'] = $this->utils->ga($this->userdata, 'expenses');
 
             require_once "content/user_page.php";
         }

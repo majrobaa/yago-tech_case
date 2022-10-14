@@ -16,16 +16,18 @@ Coverage Ceiling Formula (large recommended): <?= $this->utils->ga($this->getUse
 <form>
     <?php foreach ($this->utils->ga($this->getRetData(), 'covers', [], true) as $cover) { ?>
         <label for="<?= $this->utils->ga($cover, 'key') ?>"><?= $this->utils->ga($cover, 'name') . ' - ' . $this->utils->ga($cover, 'price') . ' € ' ?></label>
-        <?php if ($this->utils->ga($cover, 'key') === 'legalExpenses') { ?>
-
-            <input type="checkbox" name="<?= $this->utils->ga($cover, 'key') ?>"
-                   value="<?= $this->utils->ga($cover, 'price') ?>"
-                   id="<?= $this->utils->ga($cover, 'key') ?>">
+        <?php if ($this->utils->ga($cover, 'key') === 'legalExpenses' && $this->utils->ga($this->getRetData(), 'expenses')) { ?>
+            - You have asked for this insurance as well
         <?php } ?>
         <br>
         <label for="<?= $this->utils->ga($cover, 'key') ?>">(<?= $this->utils->ga($cover, 'description') ?>)</label><br>
         <br>
     <?php } ?>
+</form>
+<form method="post">
+    <label>Change Legal Expanse requirement</label><br>
+    <input type="hidden" value="<?= $this->utils->ga($this->getRetData(), 'expenses') ?>" name="setexpenses">
+    <input type="submit" value="Change settings">
 </form>
 <br><br>
 <form method="get">

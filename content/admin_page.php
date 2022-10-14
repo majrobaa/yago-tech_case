@@ -89,8 +89,12 @@ if (count($this->getRetData('error')) > 0) {
     <?php
     foreach ($this->utils->ga($this->getUserData(), 'covers', [], true) as $cover) {
         ?>
-        <label for="<?= $this->utils->ga($cover, 'key') ?>"><?= $this->utils->ga($cover, 'name') . ' - ' . $this->utils->ga($cover, 'price') . ' € ' ?></label>
-        <br>
+        <label for="<?= $this->utils->ga($cover, 'key') ?>"><?= $this->utils->ga($cover, 'name') . ' - ' . $this->utils->ga($cover, 'price') . ' € ' ?>
+            <?php if ($this->utils->ga($cover, 'key') === 'legalExpenses') { ?>
+                <?= $this->utils->ga($this->getUserData(), 'expenses') ? ' - Needed' : ' - Not Needed' ?>
+            <?php } ?>
+            <br>
+        </label>
     <?php } ?>
     <br>
     <input type="hidden" name="send" value="1">
