@@ -38,7 +38,7 @@ Set profile
         <option value="small" <?= $this->utils->ga($this->getUserData('post'), 'dformula') === 'small' ? 'selected' : '' ?>>
             Small
         </option>
-        <option value="medium" <?= $this->utils->ga($this->getUserData('post'), 'dformula') === 'medium' || $this->utils->ga($_POST, 'dformula') === '' ? 'selected' : '' ?>>
+        <option value="medium" <?= $this->utils->ga($this->getUserData('post'), 'dformula') === 'medium' || $this->utils->ga($this->getUserData('post'), 'dformula') === '' ? 'selected' : '' ?>>
             Medium
         </option>
         <option value="large" <?= $this->utils->ga($this->getUserData('post'), 'dformula') === 'large' ? 'selected' : '' ?>>
@@ -73,7 +73,7 @@ Set profile
     <br>
     <br>
     <input type="hidden" name="uid" value="<?= $this->utils->s('uid') ?>">
-    <input type="submit" value="Show result">
+    <input type="submit" value="Save settings">
 </form>
 
 <?php
@@ -85,16 +85,17 @@ if (count($this->getRetData('error')) > 0) {
 }
 
 ?>
-<form>
+<form method="get">
     <?php
     foreach ($this->utils->ga($this->getUserData(), 'covers', [], true) as $cover) {
         ?>
-        <label for="<?= $this->utils->ga($cover, 'key') ?>"><?= $this->utils->ga($cover, 'name') . ' - ' . $this->utils->ga($cover, 'price') . '€ ' ?></label>
+        <label for="<?= $this->utils->ga($cover, 'key') ?>"><?= $this->utils->ga($cover, 'name') . ' - ' . $this->utils->ga($cover, 'price') . ' € ' ?></label>
         <br>
     <?php } ?>
     <br>
+    <input type="hidden" name="send" value="1">
+    <input type="hidden" name="a" value="1">
     <input type="submit" value="Send calculation to User">
 </form>
 
-
-<a href="?a=0&u=1">Go to User panel</a>
+<a href="?u=1">Go to User panel</a>

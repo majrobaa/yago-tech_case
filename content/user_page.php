@@ -1,5 +1,5 @@
 Our settings for you:<br>
-<?php //var_dump($this->getUserData('post')); ?>
+
 Annual Revenue: <?= $this->utils->ga($this->getUserData('post'), 'revenue') ?><br>
 Enterprise Number: <?= $this->utils->ga($this->getUserData('post'), 'enumber') ?><br>
 Legal Name: <?= $this->utils->ga($this->getUserData('post'), 'lname') ?><br>
@@ -15,7 +15,7 @@ Coverage Ceiling Formula (large recommended): <?= $this->utils->ga($this->getUse
 
 <form>
     <?php foreach ($this->utils->ga($this->getRetData(), 'covers', [], true) as $cover) { ?>
-        <label for="<?= $this->utils->ga($cover, 'key') ?>"><?= $this->utils->ga($cover, 'name') . ' - ' . $this->utils->ga($cover, 'price') . '€ ' ?></label>
+        <label for="<?= $this->utils->ga($cover, 'key') ?>"><?= $this->utils->ga($cover, 'name') . ' - ' . $this->utils->ga($cover, 'price') . ' € ' ?></label>
         <?php if ($this->utils->ga($cover, 'key') === 'legalExpenses') { ?>
 
             <input type="checkbox" name="<?= $this->utils->ga($cover, 'key') ?>"
@@ -28,4 +28,8 @@ Coverage Ceiling Formula (large recommended): <?= $this->utils->ga($this->getUse
     <?php } ?>
 </form>
 <br><br>
+<form method="get">
+    <input type="hidden" name="send" value="1">
+    <input type="submit" value="Send me a reminder">
+</form>
 <a href="?a=1&u=1">Go to admin panel</a>

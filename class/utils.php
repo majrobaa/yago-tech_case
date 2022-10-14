@@ -45,7 +45,7 @@ class utils
         }
     }
 
-    function apiCall($headers, $data, $apikey = '', $apiurl = '')
+    function apiCall($data, $apikey = '', $apiurl = '')
     {
         if ($apikey == '') $apikey = API_KEY;
         if ($apiurl == '') $apiurl = API_URL;
@@ -129,7 +129,7 @@ class utils
         return $details;
     }
 
-    function read_contents($filename)
+    function readContents($filename)
     {
         if (is_file($filename)) {
             $raw_content = file_get_contents($filename);
@@ -140,7 +140,7 @@ class utils
         }
     }
 
-    function write_contents($filename, $contents)
+    function writeContents($filename, $contents)
     {
         return file_put_contents($filename, json_encode($contents));
     }

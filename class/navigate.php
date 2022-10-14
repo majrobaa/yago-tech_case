@@ -20,7 +20,8 @@ class navigate
         $this->csvlist = [];
         $this->retData = ['error' => []];
         $this->userdata = [];
-        if ($this->utils->ga($_GET, 'u') !== $this->utils->s('uid')) $_SESSION['uid'] = $this->utils->ga($_GET, 'u');
+        if ($this->utils->s('uid') === '' || $this->utils->ga($_GET, 'u') !== $this->utils->s('uid')) $_SESSION['uid'] = $this->utils->ga($_GET, 'u', 1, true);
+
         $this->loadUserData($this->utils->s('uid'));
     }
 
@@ -44,8 +45,8 @@ class navigate
                     $insert[$this->utils->s('uid')] = [
                         'post' => $_POST,
                         'covers' => $this->retData['covers']];
-
-                    $this->utils->write_contents('user/users.json', $insert);
+                    $this->utils->writeContents('user/users.json', $insert);
+                    $this->userdata = $insert[$this->utils->s('uid')];
                 }
             }
 
@@ -62,6 +63,7 @@ class navigate
             require_once "content/user_page.php";
         }
 
+        $this->checkEmail();
         require_once "static/footer.php";
     }
 
@@ -99,9 +101,6 @@ class navigate
 
     function loadApiResult()
     {
-        $headers = [
-            'Content-Type' => 'application/json',
-        ];
         $codes = '[';
         if ($this->utils->ga($_POST, 'codes')) {
             $chosen = '';
@@ -122,13 +121,13 @@ class navigate
 	                "coverageCeilingFormula": "' . $this->utils->ga($_POST, 'cformula') . '"
                   }';
 
-        $this->retData['call'] = json_decode($this->utils->apiCall($headers, $data)->getRetData(), true);
+        $this->retData['call'] = json_decode($this->utils->apiCall($data)->getRetData(), true);
         return $this;
     }
 
     function loadUserData($uid)
     {
-        $users = $this->utils->read_contents('user/users.json');
+        $users = $this->utils->readContents('user/users.json');
         foreach ($users as $key => $value) {
             if ($key == $uid) {
                 $this->userdata = $value;
@@ -143,4 +142,17 @@ class navigate
         return $key == '' ? $this->userdata : (isset($this->userdata[$key]) ? $this->userdata[$key] : []);
     }
 
+    function checkEmail()
+    {
+        if ($this->utils->ga($_GET, 'send')) {
+            $user = $this->utils->ga($this->loadUserData($this->utils->s('uid'))->getUserData(), 'post');
+            $message = 'Click on the link to load your details: https://' . $this->utils->ga($_SERVER, 'HTTP_HOST');
+            $headers = 'From: Robert Majnik Test Case <r.majnik@vtx.hu>' . PHP_EOL;
+            if (mail($this->utils->ga($user, 'email'), 'Reminder', $message, $headers)) {
+                echo 'message sent';
+            } else {
+                echo 'Not send';
+            }
+        }
+    }
 }
